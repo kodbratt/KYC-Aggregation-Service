@@ -1,0 +1,11 @@
+@host = https://localhost:7043
+@ssn = 19800115-1234
+
+GET {{host}}/kyc-data/{{ssn}}
+Accept: application/json
+
+GET {{host}}/kyc-data/invalid-ssn
+Accept: application/json
+
+GET {{host}}/swagger/v1/swagger.json
+Accept: application/json
