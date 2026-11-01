@@ -1,4 +1,5 @@
 <Solution>
   <Folder Name="/Tests/" />
   <Project Path="KYC Aggregation Service/KYC Aggregation Service.csproj" />
+  <Project Path="Tests/KYC.Aggregation.Service.Tests/KYC.Aggregation.Service.Tests.csproj" />
 </Solution>
