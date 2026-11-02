@@ -8,13 +8,14 @@ namespace KYC.Aggregation.Service.Tests;
 
 public sealed class KycAggregationServiceTests
 {
+    private FakeCustomerDataClient customerClient = null!;
+
     [Fact]
     public async Task GetBySsnAsync_WhenDataIsStored_ReturnsStoredDataWithoutCallingCustomerApi()
     {
         const string ssn = "19800115-1234";
-        var store = new FakeAggregatedKycStore
-        {
-            StoredEntity = new AggregatedKycEntity
+        var store = new FakeAggregatedKycStore(
+            new AggregatedKycEntity
             {
                 Ssn = ssn,
                 FirstName = "Lars",
@@ -24,11 +25,12 @@ public sealed class KycAggregationServiceTests
                 Email = "lars.larsson@example.com",
                 TaxCountry = "SE",
                 Income = 550000
-            }
-        };
-        var customerDataClient = new FakeCustomerDataClient();
-        var service = new KycAggregationService(customerDataClient, store);
+            });
 
+        var customerDataClient = new FakeCustomerDataClient();
+        customerClient = customerDataClient;
+
+        var service = new KycAggregationService(customerDataClient, store);
         var result = await service.GetBySsnAsync(ssn);
 
         Assert.NotNull(result);
@@ -79,8 +81,9 @@ public sealed class KycAggregationServiceTests
                 ]
             }
         };
-        var service = new KycAggregationService(customerDataClient, store);
+        customerClient = customerDataClient;
 
+        var service = new KycAggregationService(customerDataClient, store);
         var result = await service.GetBySsnAsync(ssn);
 
         Assert.NotNull(result);
@@ -99,7 +102,7 @@ public sealed class KycAggregationServiceTests
             StoredEntity = storedEntity;
         }
 
-        public AggregatedKycEntity? StoredEntity { get; }
+        public AggregatedKycEntity? StoredEntity { get; set; }
         public AggregatedKycEntity? SavedEntity { get; private set; }
 
         public Task<AggregatedKycEntity?> GetBySsnAsync(string ssn, CancellationToken cancellationToken)
@@ -137,4 +140,3 @@ public sealed class KycAggregationServiceTests
             return Task.FromResult(KycForm);
         }
     }
-}
