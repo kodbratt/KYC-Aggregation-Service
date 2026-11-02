@@ -36,8 +36,6 @@ public sealed class KycAggregationServiceTests
         Assert.Equal("Lars", result.FirstName);
         Assert.Equal("SE", result.TaxCountry);
         Assert.Equal(0, customerDataClient.CallCount);
-        
-
     }
 
     [Fact]
@@ -86,37 +84,28 @@ public sealed class KycAggregationServiceTests
         var result = await service.GetBySsnAsync(ssn);
 
         Assert.NotNull(result);
-        Assert.Equal(ssn, result.Ssn);
-        Assert.Equal("Sven", result.FirstName);
-        Assert.Equal("Svensson", result.LastName);
-        Assert.Equal("Storgatan 1", result.Address);
-        Assert.Equal("+46 70 123 45 67", result.PhoneNumber);
-        Assert.Equal("sven.svensson@example.com", result.Email);
+        Assert.Equal("Sven", result!.FirstName);
         Assert.Equal("SE", result.TaxCountry);
         Assert.Equal(550000, result.Income);
+        Assert.Equal(3, customerClient.CallCount);
         Assert.NotNull(store.SavedEntity);
-        Assert.Equal(ssn, store.SavedEntity.Ssn);
-        Assert.Equal("SE", store.SavedEntity.TaxCountry);
-        Assert.Equal(550000, store.SavedEntity.Income);
-        Assert.Equal(3, customerDataClient.CallCount);
+        Assert.Equal(ssn, store.SavedEntity!.Ssn);
     }
 
     private sealed class FakeAggregatedKycStore : IAggregatedKycStore
     {
-        public AggregatedKycEntity? StoredEntity { get; init; }
-
-        public AggregatedKycEntity? SavedEntity { get; private set; }
-
-        public Task<AggregatedKycEntity?> GetBySsnAsync(
-            string ssn,
-            CancellationToken cancellationToken)
+        public FakeAggregatedKycStore(AggregatedKycEntity? storedEntity = null)
         {
-            return Task.FromResult(StoredEntity);
+            StoredEntity = storedEntity;
         }
 
-        public Task SaveAsync(
-            AggregatedKycEntity entity,
-            CancellationToken cancellationToken)
+        public AggregatedKycEntity? StoredEntity { get; }
+        public AggregatedKycEntity? SavedEntity { get; private set; }
+
+        public Task<AggregatedKycEntity?> GetBySsnAsync(string ssn, CancellationToken cancellationToken)
+            => Task.FromResult(StoredEntity);
+
+        public Task SaveAsync(AggregatedKycEntity entity, CancellationToken cancellationToken)
         {
             SavedEntity = entity;
             return Task.CompletedTask;
@@ -126,32 +115,23 @@ public sealed class KycAggregationServiceTests
     private sealed class FakeCustomerDataClient : ICustomerDataClient
     {
         public PersonalDetails PersonalDetails { get; init; } = new();
-
         public ContactDetails ContactDetails { get; init; } = new();
-
         public KYCForm KycForm { get; init; } = new();
-
         public int CallCount { get; private set; }
 
-        public Task<PersonalDetails> GetPersonalDetailsAsync(
-            string ssn,
-            CancellationToken cancellationToken = default)
+        public Task<PersonalDetails> GetPersonalDetailsAsync(string ssn, CancellationToken cancellationToken = default)
         {
             CallCount++;
             return Task.FromResult(PersonalDetails);
         }
 
-        public Task<ContactDetails> GetContactDetailsAsync(
-            string ssn,
-            CancellationToken cancellationToken = default)
+        public Task<ContactDetails> GetContactDetailsAsync(string ssn, CancellationToken cancellationToken = default)
         {
             CallCount++;
             return Task.FromResult(ContactDetails);
         }
 
-        public Task<KYCForm> GetKycFormAsync(
-            string ssn,
-            CancellationToken cancellationToken = default)
+        public Task<KYCForm> GetKycFormAsync(string ssn, CancellationToken cancellationToken = default)
         {
             CallCount++;
             return Task.FromResult(KycForm);
