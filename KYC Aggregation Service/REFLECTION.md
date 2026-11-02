@@ -6,14 +6,14 @@
 	- SQLite is suitable for light-weight local implementation and tests, I would not use it for a production environment. 
 	- There was nothing in the requirements that specified the service must handle havy traffic, so i chose not to use a persistent cashe provider, however
 	  the data it self is not likely to change often, so a cashe provider would be a good addition to the service in the future.
-- 
+
 - Explain why you chose the module you unit-tested.
 	- I chose to unit test the KycAggregationService because it is the core service that aggregates KYC data from multiple sources.
 	  Testing this service ensures that the aggregation logic is functioning correctly and that the data returned is accurate and complete. 
 	  By focusing on this module, I can validate the integration of different components and ensure that the service behaves as expected under various scenarios.
 
 - Describe what you would improve with more time.
-	- I would add resilience patterns like retry and circuit breaker to handle transient failures when calling the Customer Data API
+	- I would add resilience patterns like retry and circuit breaker to handle transient failures when calling the Customer Data API.
 	- I would write more unit tests to cover edge cases and error scenarios.
 	- I would also add integration tests to ensure that the service works correctly with the database and external APIs.
 	- I would maybe add a caching strategy.
@@ -22,3 +22,8 @@
 	  This would improve maintainability and testability, but feelt a bit overkill for this code-test-task.
 
 - Note any topics you would like to discuss during the technical interview.
+    - EF Core vs Dapper trade-offs
+	- API resilience patterns and retry strategies
+	- Clean architecture boundaries and separation of concerns
+	- Caching strategy for external API data
+	- Testing approach for integration and service logic
